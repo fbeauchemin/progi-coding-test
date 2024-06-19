@@ -17,7 +17,7 @@ The `bidcalculator.client` project is built using Vue.js. Tests are executed usi
 
 ### Backend
 
-The `BidCalculator.Server` project is built using C# and Asp.Net Core 8. Test are located in the `BidCalculator.Server.Tests` project.
+The `BidCalculator.Server` project is built using C# and Asp.Net Core 8. Tests are located in the `BidCalculator.Server.Tests` project.
 
 
 ## Usage
