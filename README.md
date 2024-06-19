@@ -1,4 +1,4 @@
-# Progi - The Bid Calcuation Test
+# Progi - The Bid Calculation Test
 
 Implementation of the Bid Calculation problem using C# and Vue.js.
 
