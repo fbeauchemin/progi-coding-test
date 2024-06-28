@@ -30,6 +30,8 @@
 
 <script lang="js">
     import { defineComponent } from 'vue';
+    import DetailedCosts from './DetailedCosts.vue';
+    import vehicleCostApi from '../services/VehicleCostApi';
 
     export default defineComponent({
         data() {
@@ -53,13 +55,15 @@
 
                 try {
                     this.error = null;
-                    var response = await fetch(`api/vehicle-cost?BasePrice=${this.basePrice}&Type=${this.vehicleType}`);
-                    this.costAnalysis = await response.json();
+                    this.costAnalysis = await vehicleCostApi.getCostAnalysis({ basePrice: this.basePrice, vehicleType: this.vehicleType });
                 }
                 catch (error) {
                     this.error = `Something went wrong: ${error}`;
                 }
             }
+        },
+        components: {
+            DetailedCosts
         }
     });
 </script>

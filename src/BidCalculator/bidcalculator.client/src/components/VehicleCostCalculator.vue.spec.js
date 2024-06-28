@@ -1,16 +1,14 @@
-import { expect, describe, it, beforeEach } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { expect, describe, it, beforeEach, vi } from 'vitest';
+import { shallowMount } from '@vue/test-utils';
 import VehicleCostCalculator from './VehicleCostCalculator.vue'
-import DetailedCosts from './DetailedCosts.vue'
-import AsCurrency from './AsCurrency.vue';
+import VehicleCostApi from '../services/VehicleCostApi';
+
 
 var createWrapper = function () {
-    return mount(VehicleCostCalculator, {
-        global: {
-            components: { DetailedCosts, AsCurrency }
-        }
-    });
+    return shallowMount(VehicleCostCalculator);
 }
+
+vi.mock('../services/VehicleCostApi');
 
 describe('fetchData method', () => {
 
@@ -49,7 +47,7 @@ describe('fetchData method', () => {
         wrapper.vm.vehicleType = 'Common';
         wrapper.vm.fetchData();
 
-        expect(fetch).toHaveBeenCalledTimes(0);
+        expect(VehicleCostApi.getCostAnalysis).toHaveBeenCalledTimes(0);
     });
 
     it('doesn\'t call the api when vehicle type is null', () => {
@@ -59,11 +57,12 @@ describe('fetchData method', () => {
         wrapper.vm.vehicleType = null;
         wrapper.vm.fetchData();
 
-        expect(fetch).toHaveBeenCalledTimes(0);
+        expect(VehicleCostApi.getCostAnalysis).toHaveBeenCalledTimes(0);
     });
 
-    it('calls the /api/vehicle-cost endpoint', async () => {
-        fetch.mockResponse(JSON.stringify({}));
+    it('calls the VehicleCostApi.getCostAnalysis', async () => {
+        var costAnalysis = {};
+        VehicleCostApi.getCostAnalysis.mockResolvedValue(costAnalysis);
 
         var wrapper = createWrapper();
 
@@ -71,12 +70,17 @@ describe('fetchData method', () => {
         wrapper.vm.vehicleType = 'Common';
         await wrapper.vm.fetchData();
 
-        expect(fetch).toHaveBeenCalledWith('api/vehicle-cost?BasePrice=10&Type=Common');
+        expect(VehicleCostApi.getCostAnalysis).toHaveBeenCalledWith(
+            expect.objectContaining({
+                basePrice: wrapper.vm.basePrice,
+                vehicleType: wrapper.vm.vehicleType
+            })
+        );
     });
 
     it('sets the costAnalysis on successful api call', async () => {
         var costAnalysis = {};
-        fetch.mockResponse(JSON.stringify(costAnalysis));
+        VehicleCostApi.getCostAnalysis.mockResolvedValue(costAnalysis);
 
         var wrapper = createWrapper();
 
@@ -100,7 +104,7 @@ describe('fetchData method', () => {
 
     it('sets error message when exception occurs', async () => {
         var message = 'an error occured!';
-        fetch.mockReject(new Error(message));
+        VehicleCostApi.getCostAnalysis.mockRejectedValue(new Error(message));
 
         var wrapper = createWrapper();
 
