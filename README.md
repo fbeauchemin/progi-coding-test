@@ -30,9 +30,15 @@ To launch the app:
 
 To execute the backend tests:
 
-`$> dotnet test .\src\BidCalculator\`
+- `$ src\BidCalculator> rm .\temp\ -r` _(optional: ensures coverage directory is empty)_
+- `$ src\BidCalculator> dotnet test --collect:"XPlat Code Coverage" --results-directory:"temp"`
+
+To generate code coverage report:
+
+`$ src\BidCalculator> dotnet reportgenerator -reports:"temp\**\*.xml" -targetdir:"temp\coverage" -reporttype: html`
 
 To execute the frontend tests:
 
 - `$ src\BidCalculator\bidcalculator.client> npm install`
 - `$ src\BidCalculator\bidcalculator.client> npm run test`
+- `$ src\BidCalculator\bidcalculator.client> npm run test:ui` _(UI + coverage)_

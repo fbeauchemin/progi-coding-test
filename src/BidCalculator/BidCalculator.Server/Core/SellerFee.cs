@@ -1,6 +1,6 @@
 ﻿namespace BidCalculator.Server.Core;
 
-public class SellerFee(double amount) : Fee(amount)
+public class SellerFee(decimal amount) : Fee(amount)
 {
-	public override string Name => "Seller";
+    public override string Name => "Seller";
 }

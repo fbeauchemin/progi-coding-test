@@ -2,6 +2,6 @@
 
 public class VehicleBid
 {
-	public double BasePrice { get; set; }
-	public VehicleType Type { get; set; }
+    public decimal BasePrice { get; set; }
+    public VehicleType Type { get; set; }
 }

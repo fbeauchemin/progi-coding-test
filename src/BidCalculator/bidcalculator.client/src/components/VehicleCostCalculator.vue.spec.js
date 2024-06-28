@@ -1,46 +1,88 @@
-import { expect, describe, it } from 'vitest';
+import { expect, describe, it, beforeEach, vi } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import VehicleCostCalculator from './VehicleCostCalculator.vue'
+import VehicleCostApi from '../services/VehicleCostApi';
+
+
+var createWrapper = function () {
+    return shallowMount(VehicleCostCalculator);
+}
+
+vi.mock('../services/VehicleCostApi');
 
 describe('fetchData method', () => {
 
+    beforeEach(() => {
+        fetch.resetMocks();
+    });
+
+    it('outputs input for base price', () => {
+        var wrapper = createWrapper();
+
+        expect(wrapper.get('input[type=number]').exists()).toBe(true);
+    });
+
+    it('outputs select for vehicle type', () => {
+        var wrapper = createWrapper();
+
+        expect(wrapper.get('select').exists()).toBe(true);
+    });
+
+    it('outputs select option for Common vehicle type', () => {
+        var wrapper = createWrapper();
+
+        expect(wrapper.get('select option:nth-child(n+2)').text()).toBe('Common');
+    });
+
+    it('outputs select option for Luxury vehicle type', () => {
+        var wrapper = createWrapper();
+
+        expect(wrapper.get('select option:nth-child(n+3)').text()).toBe('Luxury');
+    });
+
     it('doesn\'t call the api when base price it not greater than 0', () => {
-        var wrapper = shallowMount(VehicleCostCalculator);
+        var wrapper = createWrapper();
 
         wrapper.vm.basePrice = 0;
         wrapper.vm.vehicleType = 'Common';
         wrapper.vm.fetchData();
 
-        expect(fetch).toHaveBeenCalledTimes(0);
+        expect(VehicleCostApi.getCostAnalysis).toHaveBeenCalledTimes(0);
     });
 
     it('doesn\'t call the api when vehicle type is null', () => {
-        var wrapper = shallowMount(VehicleCostCalculator);
+        var wrapper = createWrapper();
 
         wrapper.vm.basePrice = 10;
         wrapper.vm.vehicleType = null;
         wrapper.vm.fetchData();
 
-        expect(fetch).toHaveBeenCalledTimes(0);
+        expect(VehicleCostApi.getCostAnalysis).toHaveBeenCalledTimes(0);
     });
 
-    it('calls the /api/vehicle-cost endpoint', async () => {
-        fetch.mockResponse(JSON.stringify({}));
+    it('calls the VehicleCostApi.getCostAnalysis', async () => {
+        var costAnalysis = {};
+        VehicleCostApi.getCostAnalysis.mockResolvedValue(costAnalysis);
 
-        var wrapper = shallowMount(VehicleCostCalculator);
+        var wrapper = createWrapper();
 
         wrapper.vm.basePrice = 10;
         wrapper.vm.vehicleType = 'Common';
         await wrapper.vm.fetchData();
 
-        expect(fetch).toHaveBeenCalledWith('api/vehicle-cost?BasePrice=10&Type=Common');
+        expect(VehicleCostApi.getCostAnalysis).toHaveBeenCalledWith(
+            expect.objectContaining({
+                basePrice: wrapper.vm.basePrice,
+                vehicleType: wrapper.vm.vehicleType
+            })
+        );
     });
 
     it('sets the costAnalysis on successful api call', async () => {
         var costAnalysis = {};
-        fetch.mockResponse(JSON.stringify(costAnalysis));
+        VehicleCostApi.getCostAnalysis.mockResolvedValue(costAnalysis);
 
-        var wrapper = shallowMount(VehicleCostCalculator);
+        var wrapper = createWrapper();
 
         wrapper.vm.basePrice = 10;
         wrapper.vm.vehicleType = 'Common';
@@ -50,7 +92,7 @@ describe('fetchData method', () => {
     });
 
     it('sets the costAnalysis to null when inputs are invalid', async () => {
-        var wrapper = shallowMount(VehicleCostCalculator);
+        var wrapper = createWrapper();
 
         wrapper.vm.basePrice = 0;
         wrapper.vm.vehicleType = null;
@@ -60,32 +102,18 @@ describe('fetchData method', () => {
         expect(wrapper.vm.costAnalysis).toBeNull();
     });
 
-});
+    it('sets error message when exception occurs', async () => {
+        var message = 'an error occured!';
+        VehicleCostApi.getCostAnalysis.mockRejectedValue(new Error(message));
 
-describe('formatCurrency method', () => {
+        var wrapper = createWrapper();
 
-    it('returns the value formatted as CAD', () => {
-        var wrapper = shallowMount(VehicleCostCalculator);
+        wrapper.vm.basePrice = 10;
+        wrapper.vm.vehicleType = 'Common';
+        wrapper.vm.costAnalysis = {};
+        await wrapper.vm.fetchData();
 
-        var result = wrapper.vm.formatCurrency(10);
-
-        expect(result.replaceAll('\u00A0', ' ')).toBe('10,00 $');
-    });
-
-    it('returns currency with at least 2 decimals', () => {
-        var wrapper = shallowMount(VehicleCostCalculator);
-
-        var result = wrapper.vm.formatCurrency(125.1);
-
-        expect(result.replaceAll('\u00A0', ' ')).toBe('125,10 $');
-    });
-
-    it('returns currency with at most 2 decimals', () => {
-        var wrapper = shallowMount(VehicleCostCalculator);
-
-        var result = wrapper.vm.formatCurrency(125.12654);
-
-        expect(result.replaceAll('\u00A0', ' ')).toBe('125,13 $');
+        expect(wrapper.vm.error).contains(message);
     });
 
 });

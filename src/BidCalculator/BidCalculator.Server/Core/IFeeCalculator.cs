@@ -2,5 +2,5 @@
 
 public interface IFeeCalculator
 {
-	Fee Calculate(VehicleBid bid);
+    Fee Calculate(VehicleBid bid);
 }

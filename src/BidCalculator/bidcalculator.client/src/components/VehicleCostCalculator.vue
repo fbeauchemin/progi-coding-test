@@ -19,33 +19,7 @@
         </div>
 
         <div v-if="costAnalysis" class="content">
-            <h2>Detailed Cost</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Costs</th>
-                        <th class="amount">Amount (CAD)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Base Price</td>
-                        <td class="amount">{{ formatCurrency(basePrice) }}</td>
-                    </tr>
-                    <tr>
-                        <td>Fees</td>
-                        <td></td>
-                    </tr>
-                    <tr v-for="fee in costAnalysis.fees" :key="fee.name">
-                        <td class="fee-name">{{ fee.name }}</td>
-                        <td class="amount">{{ formatCurrency(fee.amount) }}</td>
-                    </tr>
-                    <tr>
-                        <td>Total</td>
-                        <td class="amount">{{ formatCurrency(costAnalysis.total) }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <DetailedCosts :analysis="costAnalysis" />
         </div>
 
         <div v-if="error">
@@ -56,6 +30,8 @@
 
 <script lang="js">
     import { defineComponent } from 'vue';
+    import DetailedCosts from './DetailedCosts.vue';
+    import vehicleCostApi from '../services/VehicleCostApi';
 
     export default defineComponent({
         data() {
@@ -79,24 +55,16 @@
 
                 try {
                     this.error = null;
-                    var response = await fetch(`api/vehicle-cost?BasePrice=${this.basePrice}&Type=${this.vehicleType}`);
-                    this.costAnalysis = await response.json();
+                    this.costAnalysis = await vehicleCostApi.getCostAnalysis({ basePrice: this.basePrice, vehicleType: this.vehicleType });
                 }
                 catch (error) {
                     this.error = `Something went wrong: ${error}`;
                 }
-            },
-
-            formatCurrency(amount) {
-                var formatter = new Intl.NumberFormat('fr-CA', {
-                    style: 'currency',
-                    currency: 'CAD',
-                    minimumFractionDigits: 2
-                });
-
-                return formatter.format(amount);
             }
         },
+        components: {
+            DetailedCosts
+        }
     });
 </script>
 
@@ -105,46 +73,12 @@ h1, h1 + p {
     text-align: center;
 }
 
-th {
-    font-weight: bold;
-}
-.amount {
-    text-align: right;
-}
-
-tr:nth-child(even) {
-    background: #020202;
-}
-
-tr:nth-child(odd) {
-    background: #000;
-}
-
-tr:last-child td {
-    font-weight: bold;
-}
-
-th, td {
-    padding-left: .5rem;
-    padding-right: .5rem;
-}
-
-
-table {
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-}
-
 .form {
     margin-top: 3em;
 }
 .form-input {
     display: flex;
     justify-content: space-between;
-}
-.fee-name {
-    text-align: right;
 }
 
 .content {

@@ -2,14 +2,14 @@
 
 public class SellerFeeCalculator : IFeeCalculator
 {
-	private const double CommonPercentage = 2;
-	private const double LuxuryPercentage = 4;
+    private const decimal CommonPercentage = 2;
+    private const decimal LuxuryPercentage = 4;
 
-	public Fee Calculate(VehicleBid bid)
-	{
-		var percentage = bid.Type == VehicleType.Common ? CommonPercentage : LuxuryPercentage;
-		var amount = bid.BasePrice * (percentage / 100);
+    public Fee Calculate(VehicleBid bid)
+    {
+        decimal percentage = bid.Type == VehicleType.Common ? CommonPercentage : LuxuryPercentage;
+        decimal amount = bid.BasePrice * (percentage / 100);
 
-		return new SellerFee(amount);
-	}
+        return new SellerFee(amount);
+    }
 }

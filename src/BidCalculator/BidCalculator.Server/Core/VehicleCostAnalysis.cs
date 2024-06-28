@@ -1,7 +1,8 @@
 ﻿namespace BidCalculator.Server.Core;
 
-public class VehicleCostAnalysis (double basePrice, IEnumerable<Fee> applicableFees)
+public class VehicleCostAnalysis(decimal basePrice, IEnumerable<Fee> applicableFees)
 {
-	public IEnumerable<Fee> Fees { get; } = applicableFees;
-	public double Total => Math.Round(basePrice + Fees.Sum(f => f.Amount), 2);
+    public decimal BasePrice { get; } = basePrice;
+    public IEnumerable<Fee> Fees { get; } = applicableFees;
+    public decimal Total => Math.Round(BasePrice + Fees.Sum(f => f.Amount), 2);
 }

@@ -2,6 +2,6 @@
 
 public enum VehicleType
 {
-	Common,
-	Luxury
+    Common,
+    Luxury
 }

@@ -2,26 +2,26 @@
 
 public class BasicFeeCalculator : IFeeCalculator
 {
-	private const int CommonMinimum = 10;
-	private const int CommonMaximum = 50;
+    private const int CommonMinimum = 10;
+    private const int CommonMaximum = 50;
 
-	private const int LuxuryMinimum = 25;
-	private const int LuxuryMaximum = 200;
+    private const int LuxuryMinimum = 25;
+    private const int LuxuryMaximum = 200;
 
-	private const double FeePercentage = 10;
+    private const decimal FeePercentage = 10;
 
-	public Fee Calculate(VehicleBid bid)
-	{
-		var minimum = bid.Type == VehicleType.Common ? CommonMinimum : LuxuryMinimum;
-		var maximum = bid.Type == VehicleType.Common ? CommonMaximum : LuxuryMaximum;
-		var amount = bid.BasePrice * (FeePercentage / 100);
+    public Fee Calculate(VehicleBid bid)
+    {
+        int minimum = bid.Type == VehicleType.Common ? CommonMinimum : LuxuryMinimum;
+        int maximum = bid.Type == VehicleType.Common ? CommonMaximum : LuxuryMaximum;
+        decimal amount = bid.BasePrice * (FeePercentage / 100);
 
-		if (amount < minimum)
-			amount = minimum;
+        if (amount < minimum)
+            amount = minimum;
 
-		if (amount > maximum)
-			amount = maximum;
+        if (amount > maximum)
+            amount = maximum;
 
-		return new BasicFee(amount);
-	}
+        return new BasicFee(amount);
+    }
 }
