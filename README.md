@@ -1,4 +1,4 @@
-# Progi - The Bid Calculation Test
+# Progi - The Bid Calcuation Test
 
 Implementation of the Bid Calculation problem using C# and Vue.js.
 
@@ -17,7 +17,7 @@ The `bidcalculator.client` project is built using Vue.js. Tests are executed usi
 
 ### Backend
 
-The `BidCalculator.Server` project is built using C# and Asp.Net Core 8. Tests are located in the `BidCalculator.Server.Tests` project.
+The `BidCalculator.Server` project is built using C# and Asp.Net Core 8. Test are located in the `BidCalculator.Server.Tests` project.
 
 
 ## Usage
@@ -30,7 +30,11 @@ To launch the app:
 
 To execute the backend tests:
 
-`$> dotnet test .\src\BidCalculator\`
+`$ src\BidCalculator> dotnet test --collect:"XPlat Code Coverage" --results-directory:"temp"`
+
+To generate code coverage report:
+
+`$ src\BidCalculator> dotnet reportgenerator -reports:"temp\**\*.xml" -targetdir:"temp\coverage" -reporttype: html`
 
 To execute the frontend tests:
 

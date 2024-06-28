@@ -1,52 +1,83 @@
 ﻿using BidCalculator.Server.Controllers;
 using BidCalculator.Server.Core;
 using FluentAssertions;
+using NSubstitute;
+using PAP.NSubstitute.FluentAssertionsBridge;
 using Xunit;
 
 namespace BidCalculator.Server.Tests.Controllers;
 
 public class VehicleCostControllerTests
 {
-	public class IndexMethod
-	{
-		[Fact]
-		public void IncludesBasicFee_AsApplicableFees()
-		{
-			var controller = new VehicleCostController();
+    public class IndexMethod
+    {
+        [Fact]
+        public void UsesCostRequest_ToRunCostAnalyser()
+        {
+            var request = new VehicleCostRequest { BasePrice = 100, Type = VehicleType.Luxury };
 
-			var result = controller.Index(new VehicleCostRequest());
+            var costAnalyser = Substitute.For<IVehicleCostAnalyser>();
 
-			result.Value!.Fees.OfType<BasicFee>().Count().Should().Be(1);
-		}
+            var controller = CreateController(costAnalyser);
 
-		[Fact]
-		public void IncludesSellerFee_AsApplicableFees()
-		{
-			var controller = new VehicleCostController();
+            // Act
+            _ = controller.Index(request);
 
-			var result = controller.Index(new VehicleCostRequest());
+            // Assert
+            var expectedBid = new VehicleBid { BasePrice = request.BasePrice, Type = request.Type };
+            costAnalyser.Received()
+                .Analyse(
+                    Verify.That<VehicleBid>(bid => bid.Should().BeEquivalentTo(expectedBid)),
+                    Arg.Any<IEnumerable<IFeeCalculator>>()
+                );
+        }
 
-			result.Value!.Fees.OfType<SellerFee>().Count().Should().Be(1);
-		}
+        [Fact]
+        public void UsesApplicableFees_ToRunCostAnalysis()
+        {
+            var costAnalyser = Substitute.For<IVehicleCostAnalyser>();
+            var applicableFees = Array.Empty<IFeeCalculator>();
+            var controller = CreateController(costAnalyser, applicableFees);
 
-		[Fact]
-		public void IncludesAssociationFee_AsApplicableFees()
-		{
-			var controller = new VehicleCostController();
+            // Act
+            _ = controller.Index(new VehicleCostRequest());
 
-			var result = controller.Index(new VehicleCostRequest());
+            // Assert
+            costAnalyser.Received()
+                .Analyse(
+                    Arg.Any<VehicleBid>(),
+                    Verify.That<IEnumerable<IFeeCalculator>>(fees => fees.Should().BeEquivalentTo(applicableFees))
+                );
+        }
 
-			result.Value!.Fees.OfType<AssociationFee>().Count().Should().Be(1);
-		}
+        [Fact]
+        public void ReturnsCostAnalysis_FromCostAnalyser()
+        {
+            var costAnalysis = new VehicleCostAnalysis(0, []);
 
-		[Fact]
-		public void IncludesStorageFee_AsApplicableFees()
-		{
-			var controller = new VehicleCostController();
+            var costAnalyser = Substitute.For<IVehicleCostAnalyser>();
+            costAnalyser
+                .Analyse(Arg.Any<VehicleBid>(), Arg.Any<IEnumerable<IFeeCalculator>>())
+                .Returns(costAnalysis);
 
-			var result = controller.Index(new VehicleCostRequest());
+            var controller = CreateController(costAnalyser);
 
-			result.Value!.Fees.OfType<StorageFee>().Count().Should().Be(1);
-		}
-	}
+            // Act
+            var result = controller.Index(new VehicleCostRequest());
+
+            // Assert
+            result.Value.Should().Be(costAnalysis);
+        }
+
+
+        private static VehicleCostController CreateController(IVehicleCostAnalyser costAnalyser)
+        {
+            return CreateController(costAnalyser, []);
+        }
+
+        private static VehicleCostController CreateController(IVehicleCostAnalyser costAnalyser, IEnumerable<IFeeCalculator> applicableFees)
+        {
+            return new VehicleCostController(costAnalyser, applicableFees);
+        }
+    }
 }

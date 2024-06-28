@@ -6,16 +6,16 @@ namespace BidCalculator.Server.Tests.Core;
 
 public class StorageFeeCalculatorTests
 {
-	public class CalculateMethod
-	{
-		[Fact]
-		public void ReturnsFixedAmountOf_100()
-		{
-			var calculator = new StorageFeeCalculator();
+    public class CalculateMethod
+    {
+        [Fact]
+        public void ReturnsFixedAmountOf_100()
+        {
+            var calculator = new StorageFeeCalculator();
 
-			var result = calculator.Calculate(new VehicleBid());
+            var result = calculator.Calculate(new VehicleBid());
 
-			result.Amount.Should().Be(100);
-		}
-	}
+            result.Amount.Should().Be(100);
+        }
+    }
 }
