@@ -59,6 +59,9 @@ export default defineConfig({
         environment: "jsdom",
         "setupFiles": [
             "./setupVitest.js"
-        ]
+        ],
+        coverage: {
+            provider: 'istanbul'
+        }
     },
 })

@@ -6,6 +6,32 @@ namespace BidCalculator.Server.Tests.Core;
 
 public class VehicleCostAnalysisTests
 {
+    public class BasePriceProperty
+    {
+        [Fact]
+        public void ReturnsValueFromConstructor()
+        {
+            decimal basePrice = 123.45m;
+
+            VehicleCostAnalysis analysis = new(basePrice, []);
+
+            analysis.BasePrice.Should().Be(basePrice);
+        }
+    }
+
+    public class FeesProperty
+    {
+        [Fact]
+        public void ReturnsValueFromConstructor()
+        {
+            List<Fee> applicableFees = [new TestFee(0), new TestFee(0)];
+
+            VehicleCostAnalysis analysis = new(0, applicableFees);
+
+            analysis.Fees.Should().BeEquivalentTo(applicableFees);
+        }
+    }
+
     public class TotalProperty
     {
         [Fact]
